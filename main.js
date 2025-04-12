@@ -44,15 +44,14 @@ function gameBoard() {
     const availableCells = [];
     // console.log("hey", availableCells);
     board.forEach((row) => {
+      // console.log(row);
       for (let column = 0; column < 3; column++) {
-        if (row[column] === "-") {
+        // console.log(row[column].getValue());
+        if (row[column].getValue() === "-") {
           availableCells.push([board.indexOf(row), column]);
         }
       }
     });
-    // const availableCells = board
-    //   .filter((row) => row[column].getValue() === "-")
-    //   .map((row) => row[column]);
 
     // console.log(availableCells);
 
@@ -60,12 +59,16 @@ function gameBoard() {
     if (!availableCells.length) return;
 
     // place token if cell contains no player token yet, i.e. "-"
-    if (board[r][c] === "-") {
-      board[r][c].addToken(playerToken);
-      console.log(`board: ${board}`);
-    } else {
-      console.log("Choose an empty cell");
-    }
+    // console.log(board[r][c].getValue());
+    board[r][c].getValue() === "-"
+      ? board[r][c].addToken(playerToken)
+      : console.log("Cell already filled up. Choose an empty cell!");
+    // if (board[r][c].getValue() === "-") {
+    //   board[r][c].addToken(playerToken);
+    //   // console.log(`board: ${board}`);
+    // } else {
+    //   console.log("Cell already filled up. Choose an empty cell!");
+    // }
   };
 
   // May not need this after we've built the UI
