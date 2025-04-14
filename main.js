@@ -27,6 +27,8 @@ function gameBoard() {
   const rows = 3;
   const columns = 3;
   const board = [];
+  let emptyCells = 0; // will use to check if all cells have been filled
+  let placedToken = false; // will use to check if player wants to place token in an occupied cell
 
   // Create a 2d array to represent the state of the game board,
   // where row 0 is the top row and column 0 is the left column
@@ -39,37 +41,29 @@ function gameBoard() {
 
   const getBoard = () => board;
 
+  board.forEach((row) =>
+    row.some((cell) => {
+      if (cell.getValue() === "-") emptyCells++;
+    })
+  );
+
   const placeToken = (r, c, playerToken) => {
-    // get addresses of all cells that don't have a token
-    const availableCells = [];
-    // console.log("hey", availableCells);
-    board.forEach((row) => {
-      // console.log(row);
-      for (let column = 0; column < 3; column++) {
-        // console.log(row[column].getValue());
-        if (row[column].getValue() === "-") {
-          availableCells.push([board.indexOf(row), column]);
-        }
+    if (emptyCells) {
+      // place token if cell contains no token yet, i.e. contains "-"
+      if (board[r][c].getValue() === "-") {
+        board[r][c].addToken(playerToken);
+        emptyCells--;
+        placedToken = true;
+      } else {
+        console.log("Cell already filled up. Please choose an empty cell.");
+        placedToken = false;
       }
-    });
-
-    // console.log(availableCells);
-
-    // if no available cells, game is a draw. Stop execution
-    if (!availableCells.length) return;
-
-    // place token if cell contains no player token yet, i.e. "-"
-    // console.log(board[r][c].getValue());
-    board[r][c].getValue() === "-"
-      ? board[r][c].addToken(playerToken)
-      : console.log("Cell already filled up. Choose an empty cell!");
-    // if (board[r][c].getValue() === "-") {
-    //   board[r][c].addToken(playerToken);
-    //   // console.log(`board: ${board}`);
-    // } else {
-    //   console.log("Cell already filled up. Choose an empty cell!");
-    // }
+    }
   };
+
+  const getEmptyCells = () => emptyCells;
+
+  const getPlacedToken = () => placedToken;
 
   // May not need this after we've built the UI
   const printBoard = () => {
@@ -79,7 +73,7 @@ function gameBoard() {
     console.log(boardWithTokens);
   };
 
-  return { getBoard, placeToken, printBoard };
+  return { getBoard, placeToken, printBoard, getEmptyCells, getPlacedToken };
 }
 
 function gameController(
@@ -94,7 +88,9 @@ function gameController(
   let activePlayer = players[0];
 
   const switchPlayerTurn = () => {
-    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+    // If last player didn't choose an empty cell, don't switch players
+    if (board.getPlacedToken())
+      activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
 
   const getActivePlayer = () => activePlayer;
@@ -105,15 +101,79 @@ function gameController(
   };
 
   const playRound = (row, column) => {
+    // If no more empty cells and no winner yet, game is a tie
+    if (!board.getEmptyCells()) {
+      board.printBoard();
+      console.log("GAME IS A TIE! Refresh to play again.");
+      return;
+    }
     console.log(
-      `Place ${getActivePlayer().name}'s token into row ${[row]} and column ${[
-        column,
-      ]}...`
+      `Place ${
+        getActivePlayer().name
+      }'s token into row ${row} and column ${column}...`
     );
+
     board.placeToken(row, column, getActivePlayer().token);
 
-    /*  This is where we would check for a winner and handle that logic,
-        such as a win message. */
+    // Check for winner
+    if (
+      (board.getBoard()[0][0].getValue() === "X" &&
+        board.getBoard()[1][1].getValue() === "X" &&
+        board.getBoard()[2][2].getValue() === "X") ||
+      (board.getBoard()[0][0].getValue() === "O" &&
+        board.getBoard()[1][1].getValue() === "O" &&
+        board.getBoard()[2][2].getValue() === "O") ||
+      (board.getBoard()[0][2].getValue() === "X" &&
+        board.getBoard()[1][1].getValue() === "X" &&
+        board.getBoard()[2][0].getValue() === "X") ||
+      (board.getBoard()[0][2].getValue() === "O" &&
+        board.getBoard()[1][1].getValue() === "O" &&
+        board.getBoard()[2][0].getValue() === "O") ||
+      (board.getBoard()[0][0].getValue() === "X" &&
+        board.getBoard()[0][1].getValue() === "X" &&
+        board.getBoard()[0][2].getValue() === "X") ||
+      (board.getBoard()[0][0].getValue() === "O" &&
+        board.getBoard()[0][1].getValue() === "O" &&
+        board.getBoard()[0][2].getValue() === "O") ||
+      (board.getBoard()[1][0].getValue() === "X" &&
+        board.getBoard()[1][1].getValue() === "X" &&
+        board.getBoard()[1][2].getValue() === "X") ||
+      (board.getBoard()[1][0].getValue() === "O" &&
+        board.getBoard()[1][1].getValue() === "O" &&
+        board.getBoard()[1][2].getValue() === "O") ||
+      (board.getBoard()[2][0].getValue() === "X" &&
+        board.getBoard()[2][1].getValue() === "X" &&
+        board.getBoard()[2][2].getValue() === "X") ||
+      (board.getBoard()[2][0].getValue() === "O" &&
+        board.getBoard()[2][1].getValue() === "O" &&
+        board.getBoard()[2][2].getValue() === "O") ||
+      (board.getBoard()[0][0].getValue() === "X" &&
+        board.getBoard()[1][0].getValue() === "X" &&
+        board.getBoard()[2][0].getValue() === "X") ||
+      (board.getBoard()[0][0].getValue() === "O" &&
+        board.getBoard()[1][0].getValue() === "O" &&
+        board.getBoard()[2][0].getValue() === "O") ||
+      (board.getBoard()[0][1].getValue() === "X" &&
+        board.getBoard()[1][1].getValue() === "X" &&
+        board.getBoard()[2][1].getValue() === "X") ||
+      (board.getBoard()[0][1].getValue() === "O" &&
+        board.getBoard()[1][1].getValue() === "O" &&
+        board.getBoard()[2][1].getValue() === "O") ||
+      (board.getBoard()[0][2].getValue() === "X" &&
+        board.getBoard()[1][2].getValue() === "X" &&
+        board.getBoard()[2][2].getValue() === "X") ||
+      (board.getBoard()[0][2].getValue() === "O" &&
+        board.getBoard()[1][2].getValue() === "O" &&
+        board.getBoard()[2][2].getValue() === "O")
+    ) {
+      board.printBoard();
+      console.log(
+        `GAME OVER! ${
+          getActivePlayer().name
+        } WINS!!!\nRefresh page to play again.`
+      );
+      return;
+    }
 
     switchPlayerTurn();
     printNewRound();
