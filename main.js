@@ -71,6 +71,7 @@ function gameBoard() {
       row.map((cell) => cell.getValue())
     );
     console.log(boardWithTokens);
+    return boardWithTokens; // I added it for UI
   };
 
   return { getBoard, placeToken, printBoard, getEmptyCells, getPlacedToken };
@@ -187,7 +188,43 @@ function gameController(
   return {
     playRound,
     getActivePlayer,
+    getBoard: board.getBoard,
   };
 }
 
-const game = gameController();
+function screenController() {
+  const game = gameController();
+  // const main = document.querySelector("main");
+  const playerTurnDisplay = document.querySelector("#player-turn");
+  const boardSection = document.querySelector("#board");
+
+  const updateScreen = () => {
+    playerTurnDisplay.textContent = `${game.getActivePlayer().name}'s turn`;
+    game.getBoard().forEach((row, index) => {
+      const rowDiv = document.createElement("div");
+      rowDiv.dataset.row = index + 1;
+      boardSection.appendChild(rowDiv);
+      row.forEach((cell, index) => {
+        const button = document.createElement("button");
+        button.dataset.column = index + 1;
+        rowDiv.appendChild(button);
+        button.textContent = cell.getValue();
+      });
+    });
+  };
+
+  const clickHandler = (e) => {
+    const column = parseInt(e.target.dataset.column);
+    const row = parseInt(e.target.parentNode.dataset.row);
+
+    game.playRound(row, column);
+    updateScreen();
+  };
+
+  boardSection.addEventListener("click", clickHandler);
+
+  // Initial render
+  updateScreen();
+}
+
+screenController();
