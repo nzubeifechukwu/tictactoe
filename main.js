@@ -27,7 +27,7 @@ function gameBoard() {
   const rows = 3;
   const columns = 3;
   const board = [];
-  let emptyCells = 0; // will use to check if all cells have been filled
+  let emptyCells = -1; // will use to check if all cells have been filled
   let placedToken = false; // will use to check if player wants to place token in an occupied cell
 
   // Create a 2d array to represent the state of the game board,
@@ -43,12 +43,14 @@ function gameBoard() {
 
   board.forEach((row) =>
     row.some((cell) => {
-      if (cell.getValue() === "-") emptyCells++;
+      if (cell.getValue() === "-") ++emptyCells;
     })
   );
 
+  // const getEmptyCells = () => emptyCells;
+
   const placeToken = (r, c, playerToken) => {
-    if (emptyCells) {
+    if (emptyCells >= 0) {
       // place token if cell contains no token yet, i.e. contains "-"
       if (board[r][c].getValue() === "-") {
         board[r][c].addToken(playerToken);
@@ -74,7 +76,13 @@ function gameBoard() {
     return boardWithTokens; // I added it for UI
   };
 
-  return { getBoard, placeToken, printBoard, getEmptyCells, getPlacedToken };
+  return {
+    getBoard,
+    placeToken,
+    printBoard,
+    getEmptyCells,
+    getPlacedToken,
+  };
 }
 
 function gameController(
@@ -87,6 +95,7 @@ function gameController(
     { name: playerTwoName, token: "O" },
   ];
   let activePlayer = players[0];
+  let won = false; // use to stop execution after game is won
 
   const switchPlayerTurn = () => {
     // If last player didn't choose an empty cell, don't switch players
@@ -103,18 +112,22 @@ function gameController(
 
   const playRound = (row, column) => {
     // If no more empty cells and no winner yet, game is a tie
-    if (!board.getEmptyCells()) {
-      board.printBoard();
-      console.log("GAME IS A TIE! Refresh to play again.");
-      return;
-    }
-    console.log(
-      `Place ${
-        getActivePlayer().name
-      }'s token into row ${row} and column ${column}...`
-    );
+    console.log(board.getEmptyCells());
+    if (!won) {
+      if (board.getEmptyCells() <= 0) {
+        board.placeToken(row, column, getActivePlayer().token);
+        board.printBoard();
+        console.log("GAME IS A TIE! Refresh to play again.");
+        return;
+      }
+      console.log(
+        `Place ${
+          getActivePlayer().name
+        }'s token into row ${row} and column ${column}...`
+      );
 
-    board.placeToken(row, column, getActivePlayer().token);
+      board.placeToken(row, column, getActivePlayer().token);
+    }
 
     // Check for winner
     if (
@@ -167,6 +180,7 @@ function gameController(
         board.getBoard()[1][2].getValue() === "O" &&
         board.getBoard()[2][2].getValue() === "O")
     ) {
+      won = true;
       board.printBoard();
       console.log(
         `GAME OVER! ${
@@ -194,28 +208,28 @@ function gameController(
 
 function screenController() {
   const game = gameController();
-  // const main = document.querySelector("main");
   const playerTurnDisplay = document.querySelector("#player-turn");
   const boardSection = document.querySelector("#board");
 
   const updateScreen = () => {
+    boardSection.textContent = "";
     playerTurnDisplay.textContent = `${game.getActivePlayer().name}'s turn`;
     game.getBoard().forEach((row, index) => {
       const rowDiv = document.createElement("div");
-      rowDiv.dataset.row = index + 1;
+      rowDiv.dataset.row = index;
       boardSection.appendChild(rowDiv);
       row.forEach((cell, index) => {
         const button = document.createElement("button");
-        button.dataset.column = index + 1;
+        button.dataset.column = index;
         rowDiv.appendChild(button);
         button.textContent = cell.getValue();
       });
     });
   };
 
-  const clickHandler = (e) => {
-    const column = parseInt(e.target.dataset.column);
-    const row = parseInt(e.target.parentNode.dataset.row);
+  const clickHandler = (event) => {
+    const column = event.target.dataset.column;
+    const row = event.target.parentNode.dataset.row;
 
     game.playRound(row, column);
     updateScreen();
