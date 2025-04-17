@@ -242,17 +242,55 @@ function gameController(
 }
 
 function screenController() {
-  let game; // Will set inside playButton event listener
+  let game;
+  let playerOne, playerTwo;
   const playerTurnDisplay = document.querySelector("#player-turn");
   const boardSection = document.querySelector("#board");
   const playButton = document.querySelector("#play");
+  const dialog = document.querySelector("dialog");
+  const submitBtn = document.querySelector("#submit");
+  const closeBtn = document.querySelector("#close");
+  const playerOneInput = document.querySelector("#player-one");
+  const playerTwoInput = document.querySelector("#player-two");
 
   // Initial render
-  playButton.addEventListener("click", (event) => {
-    game = gameController(); // Refresh all variables once Play (Again) button is clicked
-    
-    event.preventDefault();
+  playButton.addEventListener("click", () => {
+    dialog.showModal();
+  });
+
+  // Clicking outside the dialog box closes it
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+    game = gameController();
     updateScreen();
+  });
+
+  closeBtn.addEventListener("click", () => {
+    dialog.close();
+    game = gameController();
+    updateScreen();
+  });
+
+  playerOneInput.addEventListener("change", (event) => {
+    playerOne = event.target.value.toUpperCase().trim();
+    console.log(playerOne);
+  });
+
+  playerTwoInput.addEventListener("change", (event) => {
+    playerTwo = event.target.value.toUpperCase().trim();
+    console.log(playerTwo);
+  });
+
+  submitBtn.addEventListener("click", () => {
+    if (playerOne && playerTwo) {
+      game = gameController(playerOne, playerTwo);
+    } else if (playerOne || playerTwo) {
+      game = gameController(playerOne || playerTwo);
+    } else {
+      game = gameController();
+    }
+    updateScreen();
+    dialog.close();
   });
 
   const updateScreen = (
@@ -279,6 +317,8 @@ function screenController() {
   const clickHandler = (event) => {
     const column = parseInt(event.target.dataset.column);
     const row = parseInt(event.target.parentNode.dataset.row);
+    // const name = game.getActivePlayer().name;
+    // const token = game.getActivePlayer().token;
 
     game.playRound(row, column);
 
@@ -298,9 +338,9 @@ function screenController() {
     }
 
     updateScreen(
-      `<h3>Placed ${game.getActivePlayer().name}'s token into row ${
-        row + 1
-      } and column ${column + 1}...</h3>`
+      `<h3>Placed ${game.getActivePlayer().name}'s token ${
+        game.getActivePlayer().token
+      } into row ${row + 1} and column ${column + 1}...</h3>`
     );
   };
 
