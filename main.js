@@ -159,6 +159,11 @@ function gameController(
         console.log("GAME IS A TIE! Refresh to play again.");
         return;
       }
+      console.log(
+        `Placing ${getActivePlayer().name}'s token into row ${
+          row + 1
+        } and column ${column + 1}...`
+      );
       board.placeToken(row, column, getActivePlayer().token);
     }
 
@@ -225,10 +230,14 @@ function gameController(
     switchPlayerTurn();
   };
 
+  const getWon = () => won;
+
   return {
     playRound,
     getActivePlayer,
     getBoard: board.getBoard,
+    getEmptyCells: board.getEmptyCells,
+    getWon,
   };
 }
 
@@ -237,9 +246,12 @@ function screenController() {
   const playerTurnDisplay = document.querySelector("#player-turn");
   const boardSection = document.querySelector("#board");
 
-  const updateScreen = () => {
+  const updateScreen = (
+    message1 = "",
+    message2 = `<h2>${game.getActivePlayer().name}'s turn</h2>`
+  ) => {
     boardSection.textContent = "";
-    playerTurnDisplay.textContent = `${game.getActivePlayer().name}'s turn`;
+    playerTurnDisplay.innerHTML = message1 + message2;
 
     game.getBoard().forEach((row, index) => {
       const rowDiv = document.createElement("div");
@@ -258,9 +270,26 @@ function screenController() {
   const clickHandler = (event) => {
     const column = parseInt(event.target.dataset.column);
     const row = parseInt(event.target.parentNode.dataset.row);
+    const placedTokenMessage = `<h3>Placed ${
+      game.getActivePlayer().name
+    }'s token into row ${row + 1} and column ${column + 1}...</h3>`;
 
     game.playRound(row, column);
-    updateScreen();
+
+    if (game.getWon()) {
+      updateScreen(
+        "<h2>GAME OVER!!!</h2>",
+        `<h3>${game.getActivePlayer().name} WINS!</h3>`
+      );
+      return;
+    }
+
+    if (!game.getWon() && game.getEmptyCells() < 0) {
+      updateScreen("<h2>GAME OVER!!!</h2>", "<h3>Game is a TIE!</h3>");
+      return;
+    }
+
+    updateScreen(placedTokenMessage);
   };
 
   boardSection.addEventListener("click", clickHandler);
