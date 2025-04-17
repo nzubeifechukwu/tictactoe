@@ -36,18 +36,11 @@ function gameBoard() {
     board[i] = [];
     for (let j = 0; j < columns; j++) {
       board[i].push(cell());
+      emptyCells++;
     }
   }
 
   const getBoard = () => board;
-
-  board.forEach((row) =>
-    row.some((cell) => {
-      if (cell.getValue() === "-") ++emptyCells;
-    })
-  );
-
-  // const getEmptyCells = () => emptyCells;
 
   const placeToken = (r, c, playerToken) => {
     if (emptyCells >= 0) {
@@ -67,19 +60,9 @@ function gameBoard() {
 
   const getPlacedToken = () => placedToken;
 
-  // May not need this after we've built the UI
-  const printBoard = () => {
-    const boardWithTokens = board.map((row) =>
-      row.map((cell) => cell.getValue())
-    );
-    console.log(boardWithTokens);
-    return boardWithTokens; // I added it for UI
-  };
-
   return {
     getBoard,
     placeToken,
-    printBoard,
     getEmptyCells,
     getPlacedToken,
   };
@@ -105,27 +88,77 @@ function gameController(
 
   const getActivePlayer = () => activePlayer;
 
-  const printNewRound = () => {
-    board.printBoard();
-    console.log(`${getActivePlayer().name}'s turn`);
-  };
-
   const playRound = (row, column) => {
-    // If no more empty cells and no winner yet, game is a tie
     console.log(board.getEmptyCells());
+    // Stop placing token once game is won
     if (!won) {
       if (board.getEmptyCells() <= 0) {
         board.placeToken(row, column, getActivePlayer().token);
-        board.printBoard();
+
+        // Check if last move results in a win
+        if (
+          (board.getBoard()[0][0].getValue() === "X" &&
+            board.getBoard()[1][1].getValue() === "X" &&
+            board.getBoard()[2][2].getValue() === "X") ||
+          (board.getBoard()[0][0].getValue() === "O" &&
+            board.getBoard()[1][1].getValue() === "O" &&
+            board.getBoard()[2][2].getValue() === "O") ||
+          (board.getBoard()[0][2].getValue() === "X" &&
+            board.getBoard()[1][1].getValue() === "X" &&
+            board.getBoard()[2][0].getValue() === "X") ||
+          (board.getBoard()[0][2].getValue() === "O" &&
+            board.getBoard()[1][1].getValue() === "O" &&
+            board.getBoard()[2][0].getValue() === "O") ||
+          (board.getBoard()[0][0].getValue() === "X" &&
+            board.getBoard()[0][1].getValue() === "X" &&
+            board.getBoard()[0][2].getValue() === "X") ||
+          (board.getBoard()[0][0].getValue() === "O" &&
+            board.getBoard()[0][1].getValue() === "O" &&
+            board.getBoard()[0][2].getValue() === "O") ||
+          (board.getBoard()[1][0].getValue() === "X" &&
+            board.getBoard()[1][1].getValue() === "X" &&
+            board.getBoard()[1][2].getValue() === "X") ||
+          (board.getBoard()[1][0].getValue() === "O" &&
+            board.getBoard()[1][1].getValue() === "O" &&
+            board.getBoard()[1][2].getValue() === "O") ||
+          (board.getBoard()[2][0].getValue() === "X" &&
+            board.getBoard()[2][1].getValue() === "X" &&
+            board.getBoard()[2][2].getValue() === "X") ||
+          (board.getBoard()[2][0].getValue() === "O" &&
+            board.getBoard()[2][1].getValue() === "O" &&
+            board.getBoard()[2][2].getValue() === "O") ||
+          (board.getBoard()[0][0].getValue() === "X" &&
+            board.getBoard()[1][0].getValue() === "X" &&
+            board.getBoard()[2][0].getValue() === "X") ||
+          (board.getBoard()[0][0].getValue() === "O" &&
+            board.getBoard()[1][0].getValue() === "O" &&
+            board.getBoard()[2][0].getValue() === "O") ||
+          (board.getBoard()[0][1].getValue() === "X" &&
+            board.getBoard()[1][1].getValue() === "X" &&
+            board.getBoard()[2][1].getValue() === "X") ||
+          (board.getBoard()[0][1].getValue() === "O" &&
+            board.getBoard()[1][1].getValue() === "O" &&
+            board.getBoard()[2][1].getValue() === "O") ||
+          (board.getBoard()[0][2].getValue() === "X" &&
+            board.getBoard()[1][2].getValue() === "X" &&
+            board.getBoard()[2][2].getValue() === "X") ||
+          (board.getBoard()[0][2].getValue() === "O" &&
+            board.getBoard()[1][2].getValue() === "O" &&
+            board.getBoard()[2][2].getValue() === "O")
+        ) {
+          won = true;
+          console.log(
+            `GAME OVER! ${
+              getActivePlayer().name
+            } WINS!!!\nRefresh page to play again.`
+          );
+          return;
+        }
+
+        // Game is a tie if last move didn't result in a win
         console.log("GAME IS A TIE! Refresh to play again.");
         return;
       }
-      console.log(
-        `Place ${
-          getActivePlayer().name
-        }'s token into row ${row} and column ${column}...`
-      );
-
       board.placeToken(row, column, getActivePlayer().token);
     }
 
@@ -181,7 +214,6 @@ function gameController(
         board.getBoard()[2][2].getValue() === "O")
     ) {
       won = true;
-      board.printBoard();
       console.log(
         `GAME OVER! ${
           getActivePlayer().name
@@ -191,14 +223,8 @@ function gameController(
     }
 
     switchPlayerTurn();
-    printNewRound();
   };
 
-  // Initial play game message
-  printNewRound();
-
-  // For the console version, we will only use playRound, but we will need
-  // getActivePlayer for the UI version
   return {
     playRound,
     getActivePlayer,
@@ -214,10 +240,12 @@ function screenController() {
   const updateScreen = () => {
     boardSection.textContent = "";
     playerTurnDisplay.textContent = `${game.getActivePlayer().name}'s turn`;
+
     game.getBoard().forEach((row, index) => {
       const rowDiv = document.createElement("div");
       rowDiv.dataset.row = index;
       boardSection.appendChild(rowDiv);
+
       row.forEach((cell, index) => {
         const button = document.createElement("button");
         button.dataset.column = index;
@@ -228,8 +256,8 @@ function screenController() {
   };
 
   const clickHandler = (event) => {
-    const column = event.target.dataset.column;
-    const row = event.target.parentNode.dataset.row;
+    const column = parseInt(event.target.dataset.column);
+    const row = parseInt(event.target.parentNode.dataset.row);
 
     game.playRound(row, column);
     updateScreen();
@@ -241,4 +269,5 @@ function screenController() {
   updateScreen();
 }
 
+// Entry point
 screenController();
