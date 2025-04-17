@@ -242,9 +242,18 @@ function gameController(
 }
 
 function screenController() {
-  const game = gameController();
+  let game; // Will set inside playButton event listener
   const playerTurnDisplay = document.querySelector("#player-turn");
   const boardSection = document.querySelector("#board");
+  const playButton = document.querySelector("#play");
+
+  // Initial render
+  playButton.addEventListener("click", (event) => {
+    game = gameController(); // Refresh all variables once Play (Again) button is clicked
+    
+    event.preventDefault();
+    updateScreen();
+  });
 
   const updateScreen = (
     message1 = "",
@@ -270,9 +279,6 @@ function screenController() {
   const clickHandler = (event) => {
     const column = parseInt(event.target.dataset.column);
     const row = parseInt(event.target.parentNode.dataset.row);
-    const placedTokenMessage = `<h3>Placed ${
-      game.getActivePlayer().name
-    }'s token into row ${row + 1} and column ${column + 1}...</h3>`;
 
     game.playRound(row, column);
 
@@ -281,21 +287,24 @@ function screenController() {
         "<h2>GAME OVER!!!</h2>",
         `<h3>${game.getActivePlayer().name} WINS!</h3>`
       );
+      playButton.textContent = "Play Again";
       return;
     }
 
     if (!game.getWon() && game.getEmptyCells() < 0) {
       updateScreen("<h2>GAME OVER!!!</h2>", "<h3>Game is a TIE!</h3>");
+      playButton.textContent = "Play Again";
       return;
     }
 
-    updateScreen(placedTokenMessage);
+    updateScreen(
+      `<h3>Placed ${game.getActivePlayer().name}'s token into row ${
+        row + 1
+      } and column ${column + 1}...</h3>`
+    );
   };
 
   boardSection.addEventListener("click", clickHandler);
-
-  // Initial render
-  updateScreen();
 }
 
 // Entry point
