@@ -309,7 +309,7 @@ function screenController() {
     }
 
     if (!game.getPlacedToken()) {
-      updateScreen("<h3>Cell already filled up! Choose another cell.</h3>");
+      updateScreen("<h3>Cell already filled up! Choose another cell</h3>");
     } else {
       updateScreen(
         `<h3>Placed ${name}'s token (${token}) into row ${row + 1} and column ${
