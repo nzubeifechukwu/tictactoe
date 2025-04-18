@@ -50,7 +50,6 @@ function gameBoard() {
         emptyCells--;
         placedToken = true;
       } else {
-        console.log("Cell already filled up. Please choose an empty cell.");
         placedToken = false;
       }
     }
@@ -89,7 +88,6 @@ function gameController(
   const getActivePlayer = () => activePlayer;
 
   const playRound = (row, column) => {
-    console.log(board.getEmptyCells());
     // Stop placing token once game is won
     if (!won) {
       if (board.getEmptyCells() <= 0) {
@@ -147,23 +145,11 @@ function gameController(
             board.getBoard()[2][2].getValue() === "O")
         ) {
           won = true;
-          console.log(
-            `GAME OVER! ${
-              getActivePlayer().name
-            } WINS!!!\nRefresh page to play again.`
-          );
           return;
         }
-
-        // Game is a tie if last move didn't result in a win
-        console.log("GAME IS A TIE! Refresh to play again.");
+        // Game is a tie if last move didn't result in a win, so stop execution
         return;
       }
-      console.log(
-        `Placing ${getActivePlayer().name}'s token into row ${
-          row + 1
-        } and column ${column + 1}...`
-      );
       board.placeToken(row, column, getActivePlayer().token);
     }
 
@@ -219,11 +205,6 @@ function gameController(
         board.getBoard()[2][2].getValue() === "O")
     ) {
       won = true;
-      console.log(
-        `GAME OVER! ${
-          getActivePlayer().name
-        } WINS!!!\nRefresh page to play again.`
-      );
       return;
     }
 
@@ -238,11 +219,11 @@ function gameController(
     getBoard: board.getBoard,
     getEmptyCells: board.getEmptyCells,
     getWon,
+    getPlacedToken: board.getPlacedToken,
   };
 }
 
 function screenController() {
-  let game;
   let playerOne, playerTwo;
   const playerTurnDisplay = document.querySelector("#player-turn");
   const boardSection = document.querySelector("#board");
@@ -258,27 +239,18 @@ function screenController() {
     dialog.showModal();
   });
 
-  // Clicking outside the dialog box closes it
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
-    game = gameController();
-    updateScreen();
-  });
-
   closeBtn.addEventListener("click", () => {
-    dialog.close();
     game = gameController();
     updateScreen();
+    dialog.close();
   });
 
   playerOneInput.addEventListener("change", (event) => {
     playerOne = event.target.value.toUpperCase().trim();
-    console.log(playerOne);
   });
 
   playerTwoInput.addEventListener("change", (event) => {
     playerTwo = event.target.value.toUpperCase().trim();
-    console.log(playerTwo);
   });
 
   submitBtn.addEventListener("click", () => {
@@ -317,16 +289,15 @@ function screenController() {
   const clickHandler = (event) => {
     const column = parseInt(event.target.dataset.column);
     const row = parseInt(event.target.parentNode.dataset.row);
-    // const name = game.getActivePlayer().name;
-    // const token = game.getActivePlayer().token;
+
+    // Had to exclusively set the name and token because game.playRound() will switch the active player
+    const name = game.getActivePlayer().name;
+    const token = game.getActivePlayer().token;
 
     game.playRound(row, column);
 
     if (game.getWon()) {
-      updateScreen(
-        "<h2>GAME OVER!!!</h2>",
-        `<h3>${game.getActivePlayer().name} WINS!</h3>`
-      );
+      updateScreen("<h2>GAME OVER!!!</h2>", `<h3>${name} WINS!</h3>`);
       playButton.textContent = "Play Again";
       return;
     }
@@ -337,13 +308,16 @@ function screenController() {
       return;
     }
 
-    updateScreen(
-      `<h3>Placed ${game.getActivePlayer().name}'s token ${
-        game.getActivePlayer().token
-      } into row ${row + 1} and column ${column + 1}...</h3>`
-    );
+    if (!game.getPlacedToken()) {
+      updateScreen("<h3>Cell already filled up! Choose another cell.</h3>");
+    } else {
+      updateScreen(
+        `<h3>Placed ${name}'s token (${token}) into row ${row + 1} and column ${
+          column + 1
+        }...</h3>`
+      );
+    }
   };
-
   boardSection.addEventListener("click", clickHandler);
 }
 
