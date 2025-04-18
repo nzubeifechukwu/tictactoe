@@ -1,4 +1,61 @@
-button {
-  width: 50px;
-  height: 50px;
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: center;
+  padding: 50px;
+  background-color: #fdf0d5;
+  color: #780000;
+}
+
+h1 {
+  text-transform: uppercase;
+}
+
+#player-turn {
+  margin: 20px;
+}
+
+#player-turn h3,
+#player-turn h2 {
+  font-weight: 600;
+}
+
+#player-turn h3 {
+  margin-bottom: 10px;
+}
+
+#board button {
+  width: 75px;
+  height: 75px;
+  margin: 10px;
+  background-color: #003049;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.5rem;
+}
+
+#play {
+  width: 150px;
+  margin-top: 50px;
+  height: 75px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 20px;
+  background-color: #c1121f;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
 }

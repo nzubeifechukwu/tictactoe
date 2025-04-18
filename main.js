@@ -297,13 +297,13 @@ function screenController() {
     game.playRound(row, column);
 
     if (game.getWon()) {
-      updateScreen("<h2>GAME OVER!!!</h2>", `<h3>${name} WINS!</h3>`);
+      updateScreen("<h3>GAME OVER!!!</h3>", `<h2>${name} WINS!</h2>`);
       playButton.textContent = "Play Again";
       return;
     }
 
     if (!game.getWon() && game.getEmptyCells() < 0) {
-      updateScreen("<h2>GAME OVER!!!</h2>", "<h3>Game is a TIE!</h3>");
+      updateScreen("<h3>GAME OVER!!!</h3>", "<h2>Game is a TIE!</h2>");
       playButton.textContent = "Play Again";
       return;
     }
