@@ -36,26 +36,101 @@ h1 {
   margin-bottom: 10px;
 }
 
+button {
+  cursor: pointer;
+}
+
 #board button {
   width: 75px;
   height: 75px;
   margin: 10px;
-  background-color: #003049;
+  background-color: rgb(0, 48, 73);
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 1.5rem;
 }
 
+#board button:hover {
+  background-color: rgb(0, 48, 73, 0.9);
+}
+
 #play {
   width: 150px;
-  margin-top: 50px;
+  margin-top: 30px;
   height: 75px;
   font-size: 1rem;
   border: none;
   border-radius: 20px;
-  background-color: #c1121f;
+  background-color: rgb(193, 18, 31);
   color: white;
   text-transform: uppercase;
   font-weight: 600;
+}
+
+#play:hover {
+  background-color: rgb(193, 18, 31, 0.9);
+}
+
+dialog {
+  border: none;
+  padding: 20px;
+  margin: 20px;
+  background-color: #780000;
+  color: #fdf0d5;
+  border-radius: 10px;
+}
+
+dialog p {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+label {
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+input {
+  background-color: #fdf0d5;
+  color: #780000;
+  border: none;
+  height: 1.5rem;
+  border-radius: 5px;
+  width: 300px;
+  padding: 5px;
+}
+
+dialog button {
+  width: 100px;
+  height: 40px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+  background-color: rgb(102, 155, 188);
+  color: black;
+}
+
+dialog #submit {
+  margin-top: 15px;
+}
+
+dialog button:hover {
+  background-color: rgba(102, 155, 188, 0.9);
+}
+
+footer {
+  margin-top: 60px;
+}
+
+a {
+  color: inherit;
 }
